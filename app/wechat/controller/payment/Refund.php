@@ -23,6 +23,7 @@ use app\wechat\model\WechatPaymentRecord;
 use app\wechat\model\WechatPaymentRefund;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
+use think\db\Query;
 
 /**
  * 支付退款管理
@@ -45,7 +46,10 @@ class Refund extends Controller
         WechatPaymentRefund::mQuery()->layTable(function () {
             $this->title = '支付退款管理';
         }, function (QueryHelper $query) {
-            $query->with(['record'])->like('code|refund_trade#refund');
+            $query->like('code|refund_trade#refund')->withoutField('refund_notify');
+            $query->with(['record' => function (Query $query) {
+                $query->withoutField('payment_notify');
+            }]);
             if (($this->get['order'] ?? '') . ($this->get['nickname'] ?? '') . ($this->get['payment'] ?? '') . ($this->get['refund'] ?? '') !== '') {
                 $db1 = WechatFans::mQuery()->field('openid')->like('openid|nickname#nickname')->db();
                 $db2 = WechatPaymentRecord::mQuery()->like('order_code|order_name#order,code|payment_trade#payment');

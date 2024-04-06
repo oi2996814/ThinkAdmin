@@ -112,7 +112,7 @@ new class() {
 
         // 数据写入文件
         $jsonFile = __DIR__ . '/data.json';
-        $scriptFile = dirname(__DIR__) . ' /pcasunzips.js';
+        $scriptFile = dirname(__DIR__) . '/pcasunzips.js';
         $jsonContent = json_encode($items, JSON_UNESCAPED_UNICODE);
         $scriptContent = str_replace('__STRING__', join('#', $data), <<<EOL
 /********************************************************

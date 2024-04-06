@@ -93,13 +93,12 @@ class Config extends Controller
     public function options_jsonrpc()
     {
         if ($this->request->isGet()) {
-            $auth = sysconf('wechat.service_authurl|raw') ?: "https://open.cuci.cc/service/api.push/auth?source=SOURCE";
+            $authUrl = sysconf('wechat.service_authurl|raw') ?: "https://open.cuci.cc/service/api.push/auth?source=SOURCE";
             $jsonRpc = sysconf('wechat.service_jsonrpc|raw') ?: 'https://open.cuci.cc/service/api.client/jsonrpc?token=TOKEN&not_init_session=1';
             Builder::mk()
                 ->addTextInput('auth_url', '公众号授权跳转入口', 'Getway', true, '进行微信授权时会跳转到这个页面，由微信管理员扫二维码进行授权。', '^https?://.*?auth.*?source=SOURCE')
                 ->addTextInput('json_rpc', '第三方服务平台接口', 'JsonRpc', true, '由应用插件 <a target="_blank" href="https://thinkadmin.top/plugin/think-plugs-wechat-service.html">ThinkPlugsWechatService</a> 提供的第三方服务平台 JSON-RPC 接口地址。', '^https?://.*?jsonrpc.*?token=TOKEN')
-                ->addSubmitButton('保存参数')->addCancelButton()
-                ->fetch(['vo' => ['auth_url' => $auth, 'json_rpc' => $jsonRpc]]);
+                ->addSubmitButton('保存参数')->addCancelButton()->fetch(['vo' => ['auth_url' => $authUrl, 'json_rpc' => $jsonRpc]]);
         } else {
             $data = $this->_vali([
                 'auth_url.require' => '授权跳转不能为空！',

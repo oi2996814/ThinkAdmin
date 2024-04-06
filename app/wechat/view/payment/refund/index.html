@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    field: '', title: '用户账号', minWidth: 170, templet: function (d) {
+                    title: '用户账号', minWidth: 170, templet: function (d) {
                         if (!d.record) return '-';
                         let tpls = [];
                         tpls.push('<div class="padding-top-10"></div>用户昵称：{{d.record.fans_nickname||"-"}}');
@@ -30,25 +30,25 @@
                     }
                 },
                 {
-                    field: '', title: '订单内容', minWidth: 180, width: '18%', templet: function (d) {
+                    title: '订单内容', minWidth: 180, width: '18%', templet: function (d) {
                         if (!d.record) return '-';
                         let tpls = [];
-                        tpls.push('<b class="color-blue font-code">{{d.record.order_code}}</b>');
-                        tpls.push('{{d.record.order_name||"-"}}');
-                        tpls.push('需支付 <b class="color-blue">{{d.record.order_amount||"-"}}</b> 元');
+                        tpls.push('业务单号：<b class="color-blue font-code">{{d.record.order_code}}</b>');
+                        tpls.push('订单标题：{{d.record.order_name||"-"}}');
+                        tpls.push('订单金额：需支付 <b class="color-blue">{{d.record.order_amount||"-"}}</b> 元');
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },
                 {
-                    field: '', title: '支付交易', minWidth: 180, width: '20%', templet: function (d) {
+                    title: '支付交易', minWidth: 180, width: '20%', templet: function (d) {
                         if (!d.record) return '-';
                         let lines = [];
-                        lines.push('<b class="color-blue font-code">{{d.record.code||"-"}}</b>');
-                        lines.push('<b class="color-blue font-code">{{d.record.payment_trade||"-"}}</b>');
+                        lines.push('交易单号：<b class="color-blue font-code">{{d.record.code||"-"}}</b>');
+                        lines.push('商户流水：<b class="color-blue font-code">{{d.record.payment_trade||"-"}}</b>');
                         if (d.record.payment_status) {
-                            lines.push('{{d.record.type_name}}，已支付 <b class="color-blue">{{d.record.payment_amount}}</b> 元');
+                            lines.push('支付金额：{{d.record.type_name}}，已支付 <b class="color-blue">{{d.record.payment_amount}}</b> 元');
                         } else {
-                            lines.push('还未支付');
+                            lines.push('支付金额：<span class="color-desc">还未支付</span>');
                         }
                         return laytpl(lines.join('<br>')).render(d);
                     }
@@ -56,18 +56,18 @@
                 {
                     field: 'refund_amount', title: '退款金额', sort: true, minWidth: 180, width: '20%', templet: function (d) {
                         let lines = [];
-                        lines.push('<b class="color-blue font-code">{{d.code||"-"}}</b>');
-                        lines.push('<b class="color-blue font-code">{{d.refund_trade||"-"}}</b>');
+                        lines.push('退款单号：<b class="color-blue font-code">{{d.code||"-"}}</b>');
+                        lines.push('商户流水：<b class="color-blue font-code">{{d.refund_trade||"-"}}</b>');
                         if (d.refund_status) {
-                            lines.push('退回{{d.refund_account||"-"}}，已退款 <b class="color-blue">{{d.refund_amount}}</b> 元');
+                            lines.push('退款金额：退回{{d.refund_account||"-"}}，已退款 <b class="color-blue">{{d.refund_amount}}</b> 元');
                         } else {
-                            lines.push('申请退款 <b class="color-blue">{{d.refund_amount}}</b> 元');
+                            lines.push('退款金额：申请退款 <b class="color-blue">{{d.refund_amount}}</b> 元');
                         }
                         return laytpl(lines.join('<br>')).render(d);
                     }
                 },
                 {
-                    field: '', title: '交易状态', minWidth: 190, width: '20%', templet: function (d) {
+                    title: '交易状态', minWidth: 190, width: '20%', templet: function (d) {
                         if (d.refund_status) {
                             d.typeInfo = '<b class="color-green">已退款</b>';
                             d.typeLabel = '退款';
@@ -85,15 +85,6 @@
                         return laytpl(tpls.join('<br>')).render(d);
                     }
                 },
-                // {
-                //     field: '', title: '支付描述', minWidth: 100, templet: function (d) {
-                //         let tpls = [];
-                //         tpls.push('<div class="padding-top-10"></div>退回方式：{{d.refund_account||"-"}}');
-                //         tpls.push('操作描述：{{d.refund_remark||"-"}}');
-                //         return laytpl(tpls.join('<br>')).render(d);
-                //     }
-                // },
-                // {field: 'id', title: '操作时间', minWidth: 235, sort: true, templet: '<div>更新时间：{{d.update_time||"-"}}<br>创建时间：{{d.create_time||"-"}}</div>'},
             ]]
         });
     });

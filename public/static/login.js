@@ -57,6 +57,9 @@ $(function () {
         let uniqid = this.dataset.fieldUniqid || 'captcha-uniqid', verify = this.dataset.fieldVerify || 'captcha-verify';
         $.form.load(action, {type: type, token: token}, 'post', function (ret) {
             if (ret.code) {
+                // 每六分钟自动刷新验证码
+                $that.attr('timer') && clearTimeout($that.attr('timer'));
+                $that.attr('timer', setTimeout(() => $that.trigger('click'), 350000));
                 $that.html('<img alt="img" src="' + ret.data.image + '"><input type="hidden">').find('input').attr('name', uniqid).val(ret.data.uniqid || '');
                 $form.find('[name="' + verify + '"]').attr('value', ret.data.code || '').val(ret.data.code || '');
                 return (ret.data.code || $form.find('.verify.layui-hide').removeClass('layui-hide')), false;

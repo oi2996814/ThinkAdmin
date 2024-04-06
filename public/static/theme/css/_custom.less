@@ -1501,67 +1501,47 @@ label.think-checkbox {
   })
 }
 
-.think-bg- {
 
-  &red {
-    color: #FFF;
-    background: linear-gradient(-125deg, #ff7d7d, #fb2c95) !important
-  }
+.think-bg {
+  @bg-styles: -red #333 #BA2E26 #E83A30,
+  -gray #333 #EFEFEF #F0F0F0,
+  -blue #FFF #3165CC #3D7EFF,
+  -orig #333 #CC5A36 #FF7043,
+  -green #FFF #27B93A #27B93A,
+  -violet #FFF #c543d8 #925cc3,
+  -purple #FFF #6E26BA #892FE8,
+  -brown #FFF #743F23 #914F2C,
+  -white #333 white white;
+  each(@bg-styles, {
+    @name: extract(@value, 1);
+    @color: extract(@value, 2);
+    @bgColor1: extract(@value, 3);
+    @bgColor2: extract(@value, 4);
+    &@{name} {
+      color: @color;
+      background: linear-gradient(-125deg, @bgColor1, @bgColor2) !important;
+    }
+  })
 
-  &none {
+  &-none {
     background: none !important;
-  }
-
-  &gray {
-    color: #333;
-    background: linear-gradient(-113deg, #EEEEEE, #EEEEEE) !important
-  }
-
-  &blue {
-    color: #FFF;
-    background: linear-gradient(-125deg, #57bdbf, #2f9de2) !important
-  }
-
-  &orig {
-    color: #FFF;
-    background: linear-gradient(-141deg, #ecca1b, #f39526) !important
-  }
-
-  &violet {
-    color: #FFF;
-    background: linear-gradient(-113deg, #c543d8, #925cc3) !important
-  }
-
-  &white {
-    color: #333;
-    background: white !important
   }
 }
 
 .text- {
-  &top {
-    vertical-align: top !important
-  }
-
-  &left {
-    text-align: left !important
-  }
-
-  &right {
-    text-align: right !important
-  }
-
-  &center {
-    text-align: center !important
-  }
-
-  &middle {
-    vertical-align: middle !important
-  }
-
-  &bottom {
-    vertical-align: bottom !important
-  }
+  @ts: top vertical-align,
+  left text-align,
+  right text-align,
+  center text-align,
+  middle vertical-align,
+  bottom vertical-align;
+  each(@ts, {
+    @name: extract(@value, 1);
+    @field: extract(@value, 2);
+    &@{name} {
+        @{field}: @name !important;
+    }
+  })
 }
 
 .font {
@@ -1569,37 +1549,15 @@ label.think-checkbox {
     font-family: 'Courier New', 'Lucida Console', 'Consolas', 'Helvetica Neue', 'Helvetica', 'PingFang SC', 'Tahoma', 'Arial', sans-serif
   }
 
-  each({
-    s10: 10px;
-    s11: 11px;
-    s12: 12px;
-    s13: 13px;
-    s14: 14px;
-    s15: 15px;
-    s16: 16px;
-    s18: 18px;
-    s20: 20px;
-    s30: 30px;
-    s40: 40px;
-  }, {
-    &-@{key} {
-      font-size: @value !important
+  each(range(10, 40), {
+    &-s@{value} {
+      font-size: @value !important;
     }
   })
 
-  each({
-    w1: 100;
-    w2: 200;
-    w3: 300;
-    w4: 400;
-    w5: 500;
-    w6: 600;
-    w7: 700;
-    w8: 800;
-    w9: 900;
-  }, {
-    &-@{key} {
-      font-weight: @value !important
+  each(range(1, 9), {
+    &-w@{value} {
+      font-weight: @value*100 !important
     }
   })
 }
@@ -1636,17 +1594,11 @@ label.think-checkbox {
   &-radius {
     border-radius: 50% !important;
 
-    &-0 {
-      border-radius: 0 !important
-    }
-
-    &-5 {
-      border-radius: 5px !important;
-    }
-
-    &-6 {
-      border-radius: 6px !important;
-    }
+    each(range(0, 6), {
+      &-@{value} {
+        border-radius: 1px*@value !important
+      }
+    })
 
     &-left-0 {
       border-top-left-radius: 0 !important;
@@ -1673,6 +1625,10 @@ each({
       &-row-@{value} {
           @{v}-left: @value*1px !important;
           @{v}-right: @value*1px !important;
+      }
+      &-col-@{value} {
+          @{v}-top: @value*1px !important;
+          @{v}-bottom: @value*1px !important;
       }
       &-top-@{value} {
           @{v}-top: @value*1px !important;

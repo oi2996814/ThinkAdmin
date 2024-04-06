@@ -23,7 +23,7 @@
                 {field: 'id', hide: true},
                 {field: 'headimg', title: '头像', width: 70, align: 'center', templet: '<div>{{-showTableImage(d.fans_headimg,true,"sm")}}</div>'},
                 {
-                    field: 'id', title: '用户信息', minWidth: 170, templet: function (d) {
+                    title: '用户信息', minWidth: 170, templet: function (d) {
                         let tpls = [];
                         tpls.push('用户昵称：{{d.fans_nickname||"-"}}');
                         tpls.push('用户标识：<span class="font-code">{{d.openid||"-"}}</span>');
@@ -31,7 +31,7 @@
                     }
                 },
                 {
-                    field: '', title: '订单内容', minWidth: 200, width: '18%', templet: function (d) {
+                    title: '订单内容', minWidth: 200, width: '18%', templet: function (d) {
                         let tpls = [];
                         tpls.push('订单编号：<b class="color-blue font-code">{{d.order_code}}</b>');
                         tpls.push('订单名称：<span>{{d.order_name||"-"}}</span>');
@@ -73,7 +73,6 @@
                 /* {if auth('refund') } */
                 {toolbar: '#toolbar', title: '操作面板', minWidth: 80, width: '10%', align: 'center', fixed: 'right'}
                 /* {/if} */
-                // {field: 'id', title: '操作时间', minWidth: 235, sort: true, templet: '<div>更新时间：{{d.update_time||"-"}}<br>创建时间：{{d.create_time||"-"}}</div>'},
             ]]
         });
     });
