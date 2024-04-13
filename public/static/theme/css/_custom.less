@@ -1487,7 +1487,6 @@ label.think-checkbox {
   })
 }
 
-
 .sub-strong {
   each(@colors, {
     &-@{key} b {
@@ -1501,18 +1500,21 @@ label.think-checkbox {
   })
 }
 
-
 .think-bg {
-  @bg-styles: -red #333 #BA2E26 #E83A30,
+  &-none {
+    background: none !important;
+  }
+
+  @bgStyles: -red #FFF #BA2E26 #E83A30,
   -gray #333 #EFEFEF #F0F0F0,
   -blue #FFF #3165CC #3D7EFF,
-  -orig #333 #CC5A36 #FF7043,
-  -green #FFF #27B93A #27B93A,
+  -orig #FFF #CC5A36 #FF7043,
+  -green #FFF #24aa35 #10da29,
   -violet #FFF #c543d8 #925cc3,
   -purple #FFF #6E26BA #892FE8,
   -brown #FFF #743F23 #914F2C,
   -white #333 white white;
-  each(@bg-styles, {
+  each(@bgStyles, {
     @name: extract(@value, 1);
     @color: extract(@value, 2);
     @bgColor1: extract(@value, 3);
@@ -1522,10 +1524,6 @@ label.think-checkbox {
       background: linear-gradient(-125deg, @bgColor1, @bgColor2) !important;
     }
   })
-
-  &-none {
-    background: none !important;
-  }
 }
 
 .text- {
@@ -1551,7 +1549,7 @@ label.think-checkbox {
 
   each(range(10, 40), {
     &-s@{value} {
-      font-size: @value !important;
+      font-size: 1px* @value !important;
     }
   })
 
