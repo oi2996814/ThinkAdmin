@@ -256,6 +256,17 @@ class WechatService extends Service
     }
 
     /**
+     * 获取会话名称
+     * @return string
+     */
+    public static function getSsid(): string
+    {
+        $conf = Library::$sapp->session->getConfig();
+        $ssid = Library::$sapp->request->get($conf['name'] ?? 'ssid');
+        return empty($ssid) ? Library::$sapp->session->getId() : $ssid;
+    }
+
+    /**
      * 通过网页授权获取粉丝信息
      * @param string $source 回跳URL地址
      * @param integer $isfull 获取资料模式
@@ -267,9 +278,9 @@ class WechatService extends Service
      */
     public static function getWebOauthInfo(string $source, int $isfull = 0, bool $redirect = true): array
     {
-        $appid = static::getAppid();
-        $openid = Library::$sapp->session->get("{$appid}_openid");
-        $userinfo = Library::$sapp->session->get("{$appid}_fansinfo");
+        [$ssid, $appid] = [static::getSsid(), static::getAppid()];
+        $openid = Library::$sapp->cache->get("{$ssid}_openid");
+        $userinfo = Library::$sapp->cache->get("{$ssid}_fansinfo");
         if ((empty($isfull) && !empty($openid)) || (!empty($isfull) && !empty($openid) && !empty($userinfo))) {
             empty($userinfo) || FansService::set($userinfo, $appid);
             return ['openid' => $openid, 'fansinfo' => $userinfo];
@@ -292,14 +303,15 @@ class WechatService extends Service
                 $openid = $token['openid'];
                 // 如果是虚拟账号，不保存会话信息，下次重新授权
                 if (empty($token['is_snapshotuser'])) {
-                    Library::$sapp->session->set("{$appid}_openid", $openid);
+                    Library::$sapp->cache->set("{$ssid}_openid", $openid, 3600);
                 }
                 if ($isfull && isset($token['access_token'])) {
                     $userinfo = $wechat->getUserInfo($token['access_token'], $openid);
                     // 如果是虚拟账号，不保存会话信息，下次重新授权
                     if (empty($token['is_snapshotuser'])) {
                         $userinfo['is_snapshotuser'] = 0;
-                        Library::$sapp->session->set("{$appid}_fansinfo", $userinfo);
+                        // 缓存用户信息
+                        Library::$sapp->cache->set("{$ssid}_fansinfo", $userinfo, 3600);
                         empty($userinfo) || FansService::set($userinfo, $appid);
                     } else {
                         $userinfo['is_snapshotuser'] = 1;
@@ -314,12 +326,12 @@ class WechatService extends Service
                 throw new Exception('Query params [rcode] not find.');
             }
         } else {
-            $result = static::ThinkServiceConfig()->oauth(Library::$sapp->session->getId(), $source, $isfull);
+            $result = static::ThinkServiceConfig()->oauth(self::getSsid(), $source, $isfull);
             [$openid, $userinfo] = [$result['openid'] ?? '', $result['fans'] ?? []];
             // 如果是虚拟账号，不保存会话信息，下次重新授权
             if (empty($result['token']['is_snapshotuser'])) {
-                Library::$sapp->session->set("{$appid}_openid", $openid);
-                Library::$sapp->session->set("{$appid}_fansinfo", $userinfo);
+                Library::$sapp->cache->set("{$ssid}_openid", $openid, 3600);
+                Library::$sapp->cache->set("{$ssid}_fansinfo", $userinfo, 3600);
             }
             if ((empty($isfull) && !empty($openid)) || (!empty($isfull) && !empty($openid) && !empty($userinfo))) {
                 empty($result['token']['is_snapshotuser']) && empty($userinfo) || FansService::set($userinfo, $appid);
@@ -337,11 +349,10 @@ class WechatService extends Service
      */
     private static function createRedirect(string $location, bool $redirect = true): Response
     {
-        if ($redirect) return redirect($location, 301);
-        [$ssid, $scripts] = [Library::$sapp->session->getId(), []];
-        $scripts[] = sprintf("location.replace('%s')", $location);
-        $scripts[] = sprintf("sessionStorage.setItem('wechat.session','%s')", $ssid);
-        return response(join(";\n", $scripts) . ";\n");
+        return $redirect ? redirect($location) : response(join(";\n", [
+            sprintf("sessionStorage.setItem('wechat.session','%s')", self::getSsid()),
+            sprintf("location.replace('%s')", $location), ''
+        ]));
     }
 
     /**

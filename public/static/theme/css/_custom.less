@@ -22,6 +22,8 @@
 // .flex-y-center
 // .flex-center
 // .flex-between
+// .ta-m*
+// .ta-p*
 
 @nums: 0, 5, 10, 15, 20, 25, 30;
 each({
@@ -49,7 +51,6 @@ each({
 
 .flex {
   #flex();
-
   each(range(5), {
     &-@{value} {
       flex: @value;
@@ -58,8 +59,8 @@ each({
 
   &-x {
     #flex();
-    height: 100%;
     #flexDirection(row);
+    height: 100%;
 
     &-center {
       #flex();
@@ -70,8 +71,8 @@ each({
 
   &-y {
     #flex();
-    width: 100%;
     #flexDirection(column);
+    width: 100%;
 
     &-center {
       #flex();
@@ -129,14 +130,17 @@ each({
   // 垂直方向
   &-align- {
     &start {
+      #flex();
       #flexAlign(flex-start);
     }
 
     &end {
+      #flex();
       #flexAlign(flex-end);
     }
 
     &center {
+      #flex();
       #flexAlign(center)
     }
   }
@@ -144,24 +148,27 @@ each({
   // 横向布局
   &-justify- {
     &start {
+      #flex();
       #flexJustify(flex-start);
     }
 
     &center {
+      #flex();
       #flexJustify(center);
     }
 
     &end {
+      #flex();
       #flexJustify(flex-end);
     }
 
     &space- {
-      &between {
-        #flexJustify(space-between);
-      }
-
       &around {
         #flexJustify(space-around);
+      }
+
+      &between {
+        #flexJustify(space-between);
       }
 
       &evenly {
@@ -345,6 +352,7 @@ each({
 }
 
 /*! 搜索表单样式 */
+
 .form-search {
   .layui-btn {
     height: 32px;
@@ -408,6 +416,7 @@ each({
 }
 
 /* 自定义表格行高 */
+
 table[data-line] + div tbody {
   .layui-table-cell {
     line-height: 21px;
@@ -463,6 +472,7 @@ table[data-line='3'] + div tbody .layui-table-cell {
 }
 
 /* 表单验证异常提示 */
+
 .label-required {
   &-prev:before {
     color: red;
@@ -494,6 +504,7 @@ table[data-line='3'] + div tbody .layui-table-cell {
 }
 
 /** 手机盒子及微信菜单 */
+
 .mobile-preview {
   width: 317px;
   height: 580px;
@@ -693,6 +704,7 @@ table[data-line='3'] + div tbody .layui-table-cell {
 }
 
 /*! 重置 Iframe 页面样式 */
+
 .iframe-pagination {
   padding: 20px;
 
@@ -1054,6 +1066,7 @@ button.layui-btn:not([type=button]) {
 }
 
 /* 图片选择器样式 */
+
 .image-dialog {
   &-head {
     clear: both;

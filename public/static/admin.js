@@ -678,6 +678,9 @@ $(function () {
                 (option.loading = this.loading = true) && $table.data('next', this).next().find(cls.join(',')).animate({opacity: 1});
                 setTimeout(() => layui.table.resize(table.id), 10);
             }, option.parseData = function (res) {
+                if (res.code === 0 && res.url) {
+                    return $.msg.auto(res);
+                }
                 if (typeof params.filter === 'function') {
                     res.data = params.filter(res.data, res);
                 }
@@ -1003,21 +1006,23 @@ $(function () {
 
     /*! 注册 data-tips-hover 事件行为 */
     $.base.onEvent('mouseenter', '[data-tips-image][data-tips-hover]', function () {
-        let img = new Image(), ele = $(this);
-        if ((img.src = this.dataset.tipsImage || this.dataset.lazySrc || this.src)) {
-            img.layopt = {anim: 5, time: 0, skin: 'layui-layer-image', isOutAnim: false, scrollbar: false};
+        let $el = $(this), img = new Image();
+        if ((img.src = this.dataset.tipsImage || this.dataset.lazySrc || this.src || this.value)) {
+            img.layopt = {anim: 5, tips: 3, time: 0, skin: 'layui-layer-image', isOutAnim: false, scrollbar: false};
             img.referrerPolicy = 'no-referrer', img.style.maxWidth = '260px', img.style.maxHeight = '260px';
-            ele.data('layidx', layer.tips(img.outerHTML, this, img.layopt)).off('mouseleave').on('mouseleave', function () {
-                layer.close(ele.data('layidx'));
+            $el.data('layidx', layer.tips(img.outerHTML, this, img.layopt)).off('mouseleave').on('mouseleave', function () {
+                $el.off('mousemove') && layer.close($el.data('layidx'));
             });
+            let $lay = $('#layui-layer' + $el.data('layidx'));
+            $el.on('mousemove', e => $lay.css({top: e.pageY + 20, left: e.pageX - 20}));
         }
     });
 
     /*! 注册 data-tips-image 事件行为 */
     $.base.onEvent('click', '[data-tips-image]', function (event) {
         (event.items = [], event.$imgs = $(this).parent().find('[data-tips-image]')).map(function () {
-            event.items.push({src: this.dataset.tipsImage || this.dataset.lazySrc || this.src});
-        }) && layer.photos({
+            (src => src && event.items.push({src: src}))(this.dataset.tipsImage || this.dataset.lazySrc || this.src || this.value);
+        }) && event.items.length > 0 && layer.photos({
             anim: 5, closeBtn: 1, photos: {start: event.$imgs.index(this), data: event.items}, tab: function (pic, $ele) {
                 $ele.find('img').attr('referrerpolicy', 'no-referrer');
                 $ele.find('.layui-layer-close').css({top: '20px', right: '20px', position: 'fixed'});
