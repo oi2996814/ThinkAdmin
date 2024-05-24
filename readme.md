@@ -8,11 +8,11 @@
 
 ### 项目介绍
 
-**ThinkAdmin** 是一款遵循 **MIT** 协议免费开源的快速开发框架，基于最新版本 **ThinkPHP6** 的极简后台管理系统 ( 已兼容 **ThinkPHP8** )，在使用 **ThinkAdmin** 前请认真阅读[《免责声明》](https://doc.thinkadmin.top/disclaimer)并同意该声明。
+**ThinkAdmin** 是一款遵循 **MIT** 协议免费开源的快速开发框架，基于最新版本 **ThinkPHP6** 的极简后台管理系统 ( 已兼容 **ThinkPHP8** )，在使用 **ThinkAdmin** 前请认真阅读[《免责声明》](https://thinkadmin.top/disclaimer)并同意该声明。
 
 当前 **ThinkAdmin** 的最新版本为[ **v6.1** ](https://gitee.com/zoujingli/ThinkAdmin/tree/v6.1)，从这个版本开始正式进入插件时代，提供类似 **PaaS** 的组件升级更新服务，也可以本地化定制开发，基础组件及扩展插件统一使用 **Composer** 管理。**ThinkAdmin** 与传统 **ThinkPHP** 多应用模式无差别，用户可以自行开发自己的模块，此次升级可完美兼容 **ThinkAdmin v6.0** 应用，原 **ThinkAdmin v6.0** 只需安装 **ThinkPlugsAdmin** 组件即可升级到 **v6.1** 的插件模式。
 
-[//]: # (想要了解更多 **ThinkAdmin** 插件生态请阅读 [《ThinkAdmin 插件生态》]&#40;https://doc.thinkadmin.top/guide/plugin.html&#41;)
+[//]: # (想要了解更多 **ThinkAdmin** 插件生态请阅读 [《ThinkAdmin 插件生态》]&#40;https://thinkadmin.top/guide/plugin.html&#41;)
 
 **[查看 ThinkAdmin v6.1 详细介绍请切换至 v6.1 分支](https://gitee.com/zoujingli/ThinkAdmin/tree/v6.1)！！**
 
@@ -112,7 +112,7 @@ return [
 
 本地开发请使用 `php think run` 运行服务，访问 `http://127.0.0.1:8000` 即可进入项目。
 
-官方地址及开发指南：https://doc.thinkadmin.top ，如果实在无法解决问题，可以加入官方群免费交流。
+官方地址及开发指南：https://thinkadmin.top ，如果实在无法解决问题，可以加入官方群免费交流。
 
 **1.官方QQ交流群：** 513350915
 
@@ -120,7 +120,7 @@ return [
 
 **3.官方微信交流群**
 
-<img alt="" src="https://doc.thinkadmin.top/static/img/wx.png" width="250">
+<img alt="" src="https://thinkadmin.top/static/img/wx.png" width="250">
 
 ## 注解权限
 
