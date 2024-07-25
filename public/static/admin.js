@@ -48,6 +48,7 @@ require.config({
         'angular': ['plugs/angular/angular.min'],
         'cropper': ['plugs/cropper/cropper.min'],
         'echarts': ['plugs/echarts/echarts.min'],
+        'weditor': ['plugs/editor/create'],
         'ckeditor4': ['plugs/ckeditor4/ckeditor'],
         'ckeditor5': ['plugs/ckeditor5/ckeditor'],
         'artplayer': ['plugs/jquery/artplayer.min'],
@@ -55,6 +56,7 @@ require.config({
         'websocket': ['plugs/socket/websocket'],
         'compressor': ['plugs/jquery/compressor.min'],
         'sortablejs': ['plugs/sortable/sortable.min'],
+        '_weditor': ['plugs/editor/index'],
         'vue.sortable': ['plugs/sortable/vue.draggable.min'],
         'jquery.ztree': ['plugs/ztree/ztree.all.min'],
         'jquery.masonry': ['plugs/jquery/masonry.min'],
@@ -65,6 +67,7 @@ require.config({
         'excel': {deps: [baseRoot + 'plugs/layui_exts/excel.js']},
         'notify': {deps: ['css!' + baseRoot + 'plugs/notify/theme.css']},
         'cropper': {deps: ['css!' + baseRoot + 'plugs/cropper/cropper.min.css']},
+        '_weditor': {deps: ['css!' + baseRoot + 'plugs/editor/css/style.css']},
         'websocket': {deps: [baseRoot + 'plugs/socket/swfobject.js']},
         'ckeditor5': {deps: ['jquery', 'upload', 'css!' + baseRoot + 'plugs/ckeditor5/ckeditor.css']},
         'vue.sortable': {deps: ['vue', 'sortablejs']},
@@ -80,11 +83,16 @@ define('jquery', [], function () {
 
 /*! 注册 ckeditor 组件 */
 define('ckeditor', (function (type) {
+    if (type === 'wangEditor') return ['weditor'];
     if (/^ckeditor[45]$/.test(type)) return [type];
     return [Object.fromEntries ? 'ckeditor5' : 'ckeditor4'];
 })(window.taEditor || 'ckeditor4'), function (ckeditor) {
     return ckeditor;
 });
+
+require(['ckeditor'], function () {
+
+})
 
 $(function () {
 
