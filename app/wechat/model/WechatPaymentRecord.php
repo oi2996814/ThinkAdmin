@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace app\wechat\model;
 
 use app\wechat\service\PaymentService;
@@ -78,6 +80,10 @@ class WechatPaymentRecord extends Model
         return $value ? format_datetime($value) : '';
     }
 
+    /**
+     * 转换数据类型
+     * @return array
+     */
     public function toArray(): array
     {
         $data = parent::toArray();

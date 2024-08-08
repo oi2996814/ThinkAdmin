@@ -13,6 +13,8 @@
 // | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
 
+declare (strict_types=1);
+
 namespace app\wechat\controller\api;
 
 use app\wechat\service\FansService;
