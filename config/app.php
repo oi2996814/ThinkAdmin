@@ -39,6 +39,8 @@ return [
     'cors_methods'            => 'GET,PUT,POST,PATCH,DELETE',
     // CORS 跨域头部字段
     'cors_headers'            => 'Api-Type,Api-Name,Api-Uuid,Jwt-Token,Api-Token,User-Form-Token,User-Token,Token',
+    // X-Frame-Options 配置
+    'cors_frame'              => 'sameorigin',
     // RBAC 登录页面（填写登录地址）
     'rbac_login'              => '',
     // RBAC 忽略应用（填写应用名称）

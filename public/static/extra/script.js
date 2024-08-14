@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2023 Anyon <zoujingli@qq.com>
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // | 免责声明 ( https://thinkadmin.top/disclaimer )
@@ -43,11 +43,6 @@ $(function () {
 
     // 显示表格图片
     window.showTableImage = function (image, circle, size, title) {
-        if (typeof image !== 'string' || image.length < 5) {
-            return '<span class="color-desc">-</span>' + (title ? laytpl('<span class="margin-left-5">{{d.title}}</span>').render({title: title}) : '');
-        }
-        return laytpl('<div class="headimg {{d.class}} headimg-{{d.size}}" data-tips-image data-tips-hover data-lazy-src="{{d.image}}" style="{{d.style}}"></div>').render({
-            size: size || 'ss', class: circle ? 'shadow-inset' : 'headimg-no', image: image, style: 'background-image:url(' + image + ');margin-right:0'
-        }) + (title ? laytpl('<span class="margin-left-5">{{d.title}}</span>').render({title: title}) : '');
+        return $.layTable.showImage(image, circle, size, title);
     };
 });
