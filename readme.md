@@ -155,6 +155,7 @@ public function index(){
 * 在线体验地址：https://v6.thinkadmin.top （账号和密码都是 admin ）
 * Gitee 仓库地址：https://gitee.com/zoujingli/ThinkAdmin
 * Github 仓库地址：https://github.com/zoujingli/ThinkAdmin
+* Gitcode 仓库地址：https://gitcode.com/ThinkAdmin/ThinkAdmin
 
 ## 框架指令
 
