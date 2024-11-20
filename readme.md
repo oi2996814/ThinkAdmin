@@ -47,11 +47,12 @@ composer create-project zoujingli/thinkadmin
 ### 进入项目根目录
 cd thinkadmin
 
-### 数据库初始化并安装 
-#### 默认使用 Sqlite 数据库作为演示使用，
-#### 若使用其他数据库请修改配置后再执行
-# copy .env.example .env
-# vi .env
+### 数据库初始化安装 
+### 系统默认使用 Sqlite 数据库
+### 若使用其他数据库请修改 DB_ 相关的配置
+copy .env.example .env
+vi .env
+
 #### 执行数据库初始化安装
 php think migrate:run
 
@@ -80,8 +81,13 @@ cd ThinkAdmin
 ### 安装项目依赖组件
 composer install --optimize-autoloader
 
-### 数据库初始化并安装
-### 默认使用 Sqlite 数据库，若使用其他数据库请修改配置后再执行
+### 数据库初始化安装 
+### 系统默认使用 Sqlite 数据库
+### 若使用其他数据库请修改 DB_ 相关的配置
+copy .env.example .env
+vi .env
+
+#### 执行数据库初始化安装
 php think migrate:run
 
 ### 开启PHP内置WEB服务
