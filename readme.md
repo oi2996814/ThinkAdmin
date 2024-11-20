@@ -48,7 +48,11 @@ composer create-project zoujingli/thinkadmin
 cd thinkadmin
 
 ### 数据库初始化并安装 
-### 默认使用 Sqlite 数据库，若使用其他数据库请修改配置后再执行
+#### 默认使用 Sqlite 数据库作为演示使用，
+#### 若使用其他数据库请修改配置后再执行
+# copy .env.example .env
+# vi .env
+#### 执行数据库初始化安装
 php think migrate:run
 
 ### 安装微信管理模块
