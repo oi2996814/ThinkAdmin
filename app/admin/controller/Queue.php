@@ -1,22 +1,23 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Admin Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-admin
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-admin
 // +----------------------------------------------------------------------
+
+declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use Exception;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
 use think\admin\model\SystemQueue;
@@ -27,7 +28,7 @@ use think\exception\HttpResponseException;
 
 /**
  * 系统任务管理
- * Class Queue
+ * @class Queue
  * @package app\admin\controller
  */
 class Queue extends Controller
@@ -44,27 +45,36 @@ class Queue extends Controller
     {
         SystemQueue::mQuery()->layTable(function () {
             $this->title = '系统任务管理';
-            $this->iswin = ProcessService::instance()->iswin();
-            // 超级管理面板
-            if ($this->isSuper = AdminService::instance()->isSuper()) {
-                $process = ProcessService::instance();
-                if ($process->iswin() || empty($_SERVER['USER'])) {
-                    $this->command = $process->think('xadmin:queue start');
-                } else {
-                    $this->command = "sudo -u {$_SERVER['USER']} {$process->think('xadmin:queue start')}";
+            $this->iswin = ProcessService::iswin();
+            if ($this->super = AdminService::isSuper()) {
+                $this->command = ProcessService::think('xadmin:queue start');
+                if (!$this->iswin && !empty($_SERVER['USER'])) {
+                    $this->command = "sudo -u {$_SERVER['USER']} {$this->command}";
                 }
             }
-            // 任务状态统计
-            $this->total = ['dos' => 0, 'pre' => 0, 'oks' => 0, 'ers' => 0];
-            SystemQueue::mk()->field('status,count(1) count')->group('status')->select()->map(function ($item) {
-                if ($item['status'] === 1) $this->total['pre'] = $item['count'];
-                if ($item['status'] === 2) $this->total['dos'] = $item['count'];
-                if ($item['status'] === 3) $this->total['oks'] = $item['count'];
-                if ($item['status'] === 4) $this->total['ers'] = $item['count'];
-            });
-        }, function (QueryHelper $query) {
-            $query->equal('status')->like('code,title,command');
+        }, static function (QueryHelper $query) {
+            $query->equal('status')->like('code|title#title,command');
             $query->timeBetween('enter_time,exec_time')->dateBetween('create_at');
+        });
+    }
+
+    /**
+     * 分页数据回调处理
+     * @param array $data
+     * @param array $result
+     * @return void
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    protected function _index_page_filter(array $data, array &$result)
+    {
+        $result['extra'] = ['dos' => 0, 'pre' => 0, 'oks' => 0, 'ers' => 0];
+        SystemQueue::mk()->field('status,count(1) count')->group('status')->select()->map(static function ($item) use (&$result) {
+            if (intval($item['status']) === 1) $result['extra']['pre'] = $item['count'];
+            if (intval($item['status']) === 2) $result['extra']['dos'] = $item['count'];
+            if (intval($item['status']) === 3) $result['extra']['oks'] = $item['count'];
+            if (intval($item['status']) === 4) $result['extra']['ers'] = $item['count'];
         });
     }
 
@@ -77,11 +87,12 @@ class Queue extends Controller
         try {
             $data = $this->_vali(['code.require' => '任务编号不能为空！']);
             $queue = QueueService::instance()->initialize($data['code'])->reset();
-            $queue->progress(1, '>>> 任务重置成功 <<<', 0.00);
+            $queue->progress(1, '>>> 任务重置成功 <<<', '0.00');
             $this->success('任务重置成功！', $queue->code);
         } catch (HttpResponseException $exception) {
             throw $exception;
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
+            trace_file($exception);
             $this->error($exception->getMessage());
         }
     }

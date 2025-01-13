@@ -2,16 +2,17 @@
 @import "_config.less";
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Static Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://demo.thinkadmin.top
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-static
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-static
 // +----------------------------------------------------------------------
 
 body, html {
@@ -19,9 +20,12 @@ body, html {
   display: block;
 }
 
-body {
-  background: url("../img/login/bg1.jpg") no-repeat center center;
+body, .login-container {
+  vertical-align: middle;
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  #defaTransition(1s, background-image);
 }
 
 .login-container {
@@ -124,8 +128,9 @@ body {
         font-size: 14px;
         line-height: 1em;
         text-indent: 35px;
+        border: #DDD !important;
         border-radius: @BoxBorderRadius;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
         background: rgba(0, 0, 0, .12);
         text-shadow: #000 .1em .1em .1em;
         -webkit-text-fill-color: #fff !important;
@@ -134,8 +139,9 @@ body {
         &:hover, &:focus, &:active,
         &:-webkit-autofill, &:-webkit-autofill:hover,
         &:-webkit-autofill:focus, &:-webkit-autofill:active {
+          border: #DDD !important;
           text-shadow: #000 .1em .1em .1em;
-          box-shadow: 0 2px 3px 0 rgba(0, 0, 0, .3) inset !important;
+          box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .4) inset !important;
           -webkit-text-fill-color: #fff !important;
           -webkit-transition-delay: 9999s !important;
           -webkit-transition: color 9999s ease-out, background-color 9999s ease-out !important;
@@ -182,89 +188,4 @@ body {
       color: #ccc
     }
   }
-}
-
-#supersized {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -999;
-  display: block;
-  position: fixed;
-  overflow: hidden;
-
-  img {
-    border: 0;
-    width: auto;
-    height: auto;
-    display: none;
-    outline: 0;
-    position: relative;
-    max-width: none !important
-  }
-
-  &.speed img {
-    image-rendering: -moz-crisp-edges;
-    -ms-interpolation-mode: nearest-neighbor
-  }
-
-  &.quality img {
-    image-rendering: optimizeQuality;
-    -ms-interpolation-mode: bicubic;
-  }
-
-  a, li {
-    width: 100%;
-    height: 100%;
-    display: block;
-    cursor: default;
-  }
-
-  li {
-    top: 0;
-    left: 0;
-    z-index: -30;
-    position: fixed;
-    overflow: hidden;
-    list-style: none;
-
-    &.prevslide {
-      z-index: -20;
-
-      img {
-        display: inline
-      }
-    }
-
-    &.activeslide {
-      z-index: -10;
-
-      img {
-        display: inline
-      }
-    }
-
-    &.image-loading {
-      width: 100%;
-      height: 100%;
-      background: url(../../plugs/supersized/progress.gif) no-repeat center center;
-
-      img {
-        visibility: hidden
-      }
-    }
-  }
-}
-
-#supersized-loader {
-  top: 50%;
-  left: 50%;
-  z-index: 0;
-  width: 60px;
-  height: 60px;
-  position: absolute;
-  text-indent: -999em;
-  margin: -30px 0 0 -30px;
-  background: url(../../plugs/supersized/progress.gif) no-repeat center center;
 }

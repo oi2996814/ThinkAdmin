@@ -1,18 +1,20 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\command;
 
@@ -26,7 +28,7 @@ use think\console\Output;
 
 /**
  * 向指定用户推送消息
- * Class Auto
+ * @class Auto
  * @package app\wechat\command
  */
 class Auto extends Command
@@ -59,13 +61,13 @@ class Auto extends Command
     {
         $code = $input->getArgument('autocode');
         $this->openid = $input->getArgument('openid');
-        if (empty($code)) $this->setQueueError("Message Code cannot be empty");
-        if (empty($this->openid)) $this->setQueueError("Wechat Openid cannot be empty");
+        if (empty($code)) $this->setQueueError('Message Code cannot be empty');
+        if (empty($this->openid)) $this->setQueueError('Wechat Openid cannot be empty');
 
         // 查询微信消息对象
         $map = ['code' => $code, 'status' => 1];
         $data = WechatAuto::mk()->where($map)->find();
-        if (empty($data)) $this->setQueueError("Message Data Query failed");
+        if (empty($data)) $this->setQueueError('Message Data Query failed');
 
         // 发送微信客服消息
         $this->buildMessage($data->toArray());
@@ -89,28 +91,28 @@ class Auto extends Command
             $result = $this->sendMessage('text', ['content' => $data['content']]);
         }
         if ($type === 'voice' && !empty($data['voice_url'])) {
-            if ($mediaId = MediaService::instance()->upload($data['voice_url'], 'voice')) {
+            if ($mediaId = MediaService::upload($data['voice_url'], 'voice')) {
                 $result = $this->sendMessage('voice', ['media_id' => $mediaId]);
             }
         }
         if ($type === 'image' && !empty($data['image_url'])) {
-            if ($mediaId = MediaService::instance()->upload($data['image_url'], 'image')) {
+            if ($mediaId = MediaService::upload($data['image_url'])) {
                 $result = $this->sendMessage('image', ['media_id' => $mediaId]);
             }
         }
         if ($type === 'news') {
-            [$item, $news] = [MediaService::instance()->news($data['news_id']), []];
+            [$item, $news] = [MediaService::news($data['news_id']), []];
             if (isset($item['articles']) && is_array($item['articles'])) {
                 $host = sysconf('base.site_host') ?: true;
-                foreach ($item['articles'] as $vo) if (empty($news)) array_push($news, [
+                foreach ($item['articles'] as $vo) if (empty($news)) $news[] = [
                     'url'   => url("@wechat/api.view/item/id/{$vo['id']}", [], false, $host)->build(),
                     'title' => $vo['title'], 'picurl' => $vo['local_url'], 'description' => $vo['digest'],
-                ]);
+                ];
                 $result = $this->sendMessage('news', ['articles' => $news]);
             }
         }
         if ($type === 'music' && !empty($data['music_url']) && !empty($data['music_title']) && !empty($data['music_desc'])) {
-            $mediaId = $data['music_image'] ? MediaService::instance()->upload($data['music_image'], 'image') : '';
+            $mediaId = $data['music_image'] ? MediaService::upload($data['music_image']) : '';
             $result = $this->sendMessage('music', [
                 'hqmusicurl'  => $data['music_url'], 'musicurl' => $data['music_url'],
                 'description' => $data['music_desc'], 'title' => $data['music_title'], 'thumb_media_id' => $mediaId,
@@ -118,7 +120,7 @@ class Auto extends Command
         }
         if ($type === 'video' && !empty($data['video_url']) && !empty($data['video_desc']) && !empty($data['video_title'])) {
             $video = ['title' => $data['video_title'], 'introduction' => $data['video_desc']];
-            if ($mediaId = MediaService::instance()->upload($data['video_url'], 'video', $video)) {
+            if ($mediaId = MediaService::upload($data['video_url'], 'video', $video)) {
                 $result = $this->sendMessage('video', ['media_id' => $mediaId, 'title' => $data['video_title'], 'description' => $data['video_desc']]);
             }
         }

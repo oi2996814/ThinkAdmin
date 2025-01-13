@@ -1,21 +1,25 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\controller\api;
 
+use app\wechat\service\MediaService;
+use app\wechat\service\PaymentService;
 use app\wechat\service\WechatService;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
@@ -24,17 +28,15 @@ use WeChat\Contracts\Tools;
 
 /**
  * 微信测试工具
- * Class Test
+ * @class Test
  * @package app\wechat\controller\api
  */
 class Test extends Controller
 {
     /**
      * 微信JSAPI支付二维码
-     * @return Response
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionFailedException
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionUnknownException
-     * @throws \Endroid\QrCode\Exceptions\ImageTypeInvalidException
+     * @login true
+     * @return \think\Response
      */
     public function jsapiQrc(): Response
     {
@@ -44,10 +46,8 @@ class Test extends Controller
 
     /**
      * 显示网页授权二维码
-     * @return Response
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionFailedException
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionUnknownException
-     * @throws \Endroid\QrCode\Exceptions\ImageTypeInvalidException
+     * @login true
+     * @return \think\Response
      */
     public function oauthQrc(): Response
     {
@@ -57,10 +57,8 @@ class Test extends Controller
 
     /**
      * 显示网页授权二维码
-     * @return Response
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionFailedException
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionUnknownException
-     * @throws \Endroid\QrCode\Exceptions\ImageTypeInvalidException
+     * @login true
+     * @return \think\Response
      */
     public function jssdkQrc(): Response
     {
@@ -70,10 +68,8 @@ class Test extends Controller
 
     /**
      * 微信扫码支付模式一二维码显示
-     * @return Response
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionFailedException
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionUnknownException
-     * @throws \Endroid\QrCode\Exceptions\ImageTypeInvalidException
+     * @login true
+     * @return \think\Response
      */
     public function scanOneQrc(): Response
     {
@@ -83,24 +79,24 @@ class Test extends Controller
 
     /**
      * 扫码支付模式二测试二维码
-     * @return Response
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionFailedException
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionUnknownException
-     * @throws \Endroid\QrCode\Exceptions\ImageTypeInvalidException
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @login true
+     * @return \think\Response
+     * @throws \think\admin\Exception
      */
     public function scanTwoQrc(): Response
     {
-        $result = WechatService::WePayOrder()->create([
-            'body'             => '测试商品',
-            'total_fee'        => '1',
-            'trade_type'       => 'NATIVE',
-            'notify_url'       => sysuri('wechat/api.test/notify', [], false, true),
-            'out_trade_no'     => CodeExtend::uniqidNumber(18),
-            'spbill_create_ip' => $this->request->ip(),
-        ]);
-        return $this->_buildQrcResponse($result['code_url']);
+        $code = CodeExtend::uniqidDate(18, 'TX');
+        $result = PaymentService::create('', $code, "扫码支付测试 {$code}", '0.01', PaymentService::WECHAT_QRC, '0.01');
+        return $this->_buildQrcResponse($result['params']['code_url']);
+        //    $result = WechatService::WePayOrder()->create([
+        //        'body'             => '测试商品',
+        //        'total_fee'        => '1',
+        //        'trade_type'       => 'NATIVE',
+        //        'notify_url'       => sysuri('wechat/api.test/notify', [], false, true),
+        //        'out_trade_no'     => CodeExtend::uniqidNumber(18),
+        //        'spbill_create_ip' => $this->request->ip(),
+        //    ]);
+        //    return $this->_buildQrcResponse($result['code_url']);
     }
 
     /**
@@ -108,14 +104,11 @@ class Test extends Controller
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function oauth()
     {
         $this->url = $this->request->url(true);
-        $this->fans = WechatService::instance()->getWebOauthInfo($this->url, 1);
+        $this->fans = WechatService::getWebOauthInfo($this->url, 1);
         $this->fetch();
     }
 
@@ -124,13 +117,10 @@ class Test extends Controller
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function jssdk()
     {
-        $this->options = WechatService::instance()->getWebJssdkSign();
+        $this->options = WechatService::getWebJssdkSign();
         $this->fetch();
     }
 
@@ -149,7 +139,7 @@ class Test extends Controller
         p($notify);
         // 微信统一下单处理
         $options = [
-            'body'             => "测试商品，产品ID：{$notify['product_id']}",
+            'body'             => "测试商品，商品ID：{$notify['product_id']}",
             'total_fee'        => '1',
             'trade_type'       => 'NATIVE',
             'notify_url'       => sysuri('wechat/api.test/notify', [], false, true),
@@ -176,53 +166,22 @@ class Test extends Controller
 
     /**
      * 微信JSAPI支付测试
-     * @return string
+     * @return void|string
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function jsapi(): string
+    public function jsapi()
     {
-        $this->url = $this->request->url(true);
-        $this->pay = WechatService::WePayOrder();
-        $user = WechatService::instance()->getWebOauthInfo($this->url);
-        if (empty($user['openid'])) return '<h3>网页授权获取OPENID失败！</h3>';
-        // 生成预支付码
-        $result = $this->pay->create([
-            'body'             => '测试商品',
-            'openid'           => $user['openid'],
-            'total_fee'        => '1',
-            'trade_type'       => 'JSAPI',
-            'notify_url'       => sysuri('wechat/api.test/notify', [], false, true),
-            'out_trade_no'     => CodeExtend::uniqidDate(18),
-            'spbill_create_ip' => $this->request->ip(),
-        ]);
-        // 数据参数格式化
-        $resultJson = var_export($result, true);
-        $optionJson = json_encode($this->pay->jsapiParams($result['prepay_id']), JSON_UNESCAPED_UNICODE);
-        $configJson = json_encode(WechatService::instance()->getWebJssdkSign(), JSON_UNESCAPED_UNICODE);
-        return <<<HTML
-<pre>
-    当前用户OPENID: {$user['openid']}
-    \n\n--- 创建微信预支付码结果 ---\n {$resultJson}
-    \n\n--- JSAPI 及 H5 支付参数 ---\n {$optionJson}
-</pre>
-<button id='paytest' type='button'>JSAPI支付测试</button>
-<script src='//res.wx.qq.com/open/js/jweixin-1.6.0.js'></script>
-<script>
-    wx.config({$configJson});
-    document.getElementById('paytest').onclick = function(){
-        var options = {$optionJson};
-        options.success = function(){
-            alert('支付成功');
-        }
-        wx.chooseWXPay(options);
-    }
-</script>
-HTML;
+        // 微信用户信息
+        $this->user = WechatService::getWebOauthInfo($this->request->url(true));
+        if (empty($this->user['openid'])) return '<h3>网页授权获取OPENID失败！</h3>';
+        // 生成支付参数
+        $oCode = CodeExtend::uniqidDate(18, 'TX');
+        $this->result = PaymentService::create($this->user['openid'], $oCode, "JSAPI 支付测试 {$oCode}", '0.01', PaymentService::WECHAT_GZH);
+        $this->optionJson = json_encode($this->result['params'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $this->configJson = json_encode(WechatService::getWebJssdkSign(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $this->fetch();
     }
 
     /**
@@ -240,16 +199,11 @@ HTML;
     /**
      * 创建二维码响应对应
      * @param string $url 二维码内容
-     * @return Response
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionFailedException
-     * @throws \Endroid\QrCode\Exceptions\ImageFunctionUnknownException
-     * @throws \Endroid\QrCode\Exceptions\ImageTypeInvalidException
+     * @return \think\Response
      */
     private function _buildQrcResponse(string $url): Response
     {
-        $qrCode = new \Endroid\QrCode\QrCode();
-        $qrCode->setText($url)->setSize(300)->setPadding(20)->setImageType('png');
-        return response($qrCode->get(), 200, ['Content-Type' => 'image/png']);
+        $result = MediaService::getQrcode($url);
+        return response($result->getString(), 200, ['Content-Type' => $result->getMimeType()]);
     }
-
 }

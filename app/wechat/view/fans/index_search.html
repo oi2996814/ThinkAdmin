@@ -1,5 +1,5 @@
 <fieldset>
-    <legend>条件搜索</legend>
+    <legend>{:lang('条件搜索')}</legend>
     <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
 
         <div class="layui-form-item layui-inline">
@@ -15,7 +15,7 @@
                 <select class="layui-select" name="subscribe">
                     <option value=''>-- 全部 --</option>
                     {foreach ['显示未订阅的粉丝','显示已订阅的粉丝'] as $k=>$v}
-                    {if $k.'' eq input('subscribe')}
+                    {if isset($get.subscribe) and $get.subscribe eq $k.""}
                     <option selected value="{$k}">{$v}</option>
                     {else}
                     <option value="{$k}">{$v}</option>
@@ -30,7 +30,7 @@
                 <select class="layui-select" name="is_black">
                     <option value=''>-- 全部 --</option>
                     {foreach ['显示未拉黑的粉丝','显示已拉黑的粉丝'] as $k=>$v}
-                    {if $k.'' eq input('is_black')}
+                    {if isset($get.is_black) and $get.is_black eq $k.""}
                     <option selected value="{$k}">{$v}</option>
                     {else}
                     <option value="{$k}">{$v}</option>
@@ -56,7 +56,6 @@
 </fieldset>
 
 <script>
-    window.form.render();
     require(['excel'], function (excel) {
         excel.bind(function (data, sexs) {
             sexs = {1: '男', 2: '女'};
@@ -73,8 +72,13 @@
                     item.is_black ? '已拉黑' : '未拉黑',
                 ];
             });
+
+            // 设置表头内容
             data.unshift(['OPENID', '微信昵称', '所在国家', '所在省份', '所在城市', '性别', '订阅状态', '订阅时间', '是否拉黑']);
-            return data;
-        }, '微信粉丝数据');
+
+            // 应用表格样式
+            return this.withStyle(data, {A: 200, H: 120});
+
+        }, '微信粉丝数据' + layui.util.toDateString(Date.now(), '_yyyyMMdd_HHmmss'));
     });
 </script>

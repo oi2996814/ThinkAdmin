@@ -2,22 +2,23 @@
 @import "_config.less";
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Static Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://demo.thinkadmin.top
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-static
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-static
 // +----------------------------------------------------------------------
 
 fieldset {
   margin: 0 0 10px 0;
   border: 1px solid @BoxBorderColor;
-  padding: 10px 20px 5px 20px;
+  padding: 10px 20px;
   background: #fff;
   border-radius: @BoxBorderRadius;
 
@@ -26,7 +27,19 @@ fieldset {
     padding: 0 10px;
     font-size: 12px;
     letter-spacing: 1px;
+
+    .layui-badge:last-child {
+      margin-right: 0;
+    }
   }
+
+  .layui-form-item {
+    margin-bottom: 10px;
+  }
+}
+
+form.layui-form fieldset {
+  padding: 15px 25px;
 }
 
 .layui-tab,
@@ -62,10 +75,11 @@ fieldset {
 }
 
 .layui-btn {
-  border: 1px solid #009688;
+  border: 1px solid #16baaa;
 
   &:hover:not(.layui-btn-disabled) {
-    box-shadow: @ShadowMaxInset;
+    filter: alpha(opacity=100);
+    opacity: 1;
   }
 
   &-warm {
@@ -92,7 +106,7 @@ fieldset {
     border: 1px solid #098;
     overflow: hidden;
     background: #009688;
-    line-height: 28px;
+    line-height: 30px;
     border-radius: 2px;
 
     + .layui-btn {
@@ -100,8 +114,8 @@ fieldset {
     }
 
     .layui-btn {
-      height: 28px;
-      line-height: 28px;
+      height: 30px;
+      line-height: 32px;
       border-width: 0 !important;
       border-radius: 0 !important;
 
@@ -133,6 +147,7 @@ fieldset {
     padding: 5px;
     line-height: 16px;
     white-space: normal;
+    box-sizing: content-box;
     vertical-align: middle;
   }
 }
@@ -147,6 +162,12 @@ fieldset {
   }
 }
 
+.layui-select {
+  appearance: revert;
+  -moz-appearance: revert;
+  -webkit-appearance: revert;
+}
+
 .layui-disabled,
 .layui-disabled:hover {
   color: #333 !important;
@@ -155,31 +176,13 @@ fieldset {
 
 .layui-nav {
   .layui-nav-item {
-    .layui-nav-more {
-      top: 0;
-      right: 15px;
-      width: auto;
-      height: auto;
-      border: none;
-      padding: 0 !important;
-      font-size: 14px !important;
-      font-style: normal;
-      font-family: "layui-icon" !important;
-      -moz-osx-font-smoothing: grayscale;
-      -webkit-font-smoothing: antialiased;
-
-      &::before {
-        content: "\e619"
-      }
+    .layui-elip {
+      padding-right: 35px !important;
     }
 
-    & .layui-nav-mored, &ed .layui-nav-more {
-      border: none;
-      transform: rotate(180deg);
-      -o-transform: rotate(180deg);
-      -ms-transform: rotate(180deg);
-      -moz-transform: rotate(180deg);
-      -webkit-transform: rotate(180deg)
+    .layui-nav-more {
+      right: 15px;
+      font-size: 14px !important;
     }
   }
 }
@@ -238,20 +241,29 @@ fieldset {
 
   input.layui-input,
   .layui-btn.layui-btn-sm {
-    height: 28px;
-    line-height: 28px;
+    height: 26px;
     box-sizing: border-box;
+    line-height: 26px;
   }
 
-  .layui-btn.layui-btn-sm {
-    margin-top: -1px;
+  .input-right-icon {
+    width: 28px;
+    height: 26px;
+    line-height: 26px;
   }
 
   &[lay-size="lg"] {
-    input.layui-input, .layui-btn.layui-btn-sm {
+    input.layui-input,
+    .layui-btn.layui-btn-sm {
       height: 38px;
       box-sizing: border-box;
       line-height: 38px;
+    }
+
+    .input-right-icon {
+      width: 38px;
+      height: 36px;
+      line-height: 36px;
     }
   }
 
@@ -269,9 +281,9 @@ fieldset {
     input {
       width: 50px;
       color: #666;
+      border: 1px solid @InputBorderNormalColor;
       padding: 2px;
       font-size: 9pt;
-      border: 1px solid @InputBorderNormalColor;
       text-align: center;
       line-height: 18px
     }
@@ -298,6 +310,10 @@ fieldset {
 
 .layui-table-view {
   margin: 0;
+
+  .layui-form-switch {
+    margin-top: -3px;
+  }
 
   .layui-table-page {
     .layui-laypage {
@@ -343,7 +359,7 @@ fieldset {
     margin: 0;
     box-shadow: none !important;
 
-    .layui-card-body {
+    > .layui-card-body {
       padding: 20px 40px 0 0;
     }
   }
@@ -364,14 +380,70 @@ fieldset {
   }
 }
 
-.layui-form-select dl {
-  top: 37px;
-  padding: 0;
-  border-color: @InputBorderActiveColor;
+.layui-form-item {
+  margin-bottom: 10px;
+
+  .layui-form-checkbox {
+    margin: 4px;
+  }
+
+  .layui-input.text-center:not([type=number]) {
+    padding-left: 0;
+  }
 }
 
-.layui-form-checkbox.layui-form-checked {
-  i {
-    border-color: #5FB878;
+.layui-form-select {
+  .layui-edge {
+    top: 50%;
+    width: unset;
+    height: unset;
+    border: none;
+    color: #c2c2c2;
+    margin-top: -7px;
+    line-height: 15px;
+    #iconLayout(15px);
+
+    &:before {
+      content: "\e61a"
+    }
   }
+
+  dl {
+    top: 37px;
+    padding: 0;
+    border-color: @InputBorderActiveColor;
+
+    dd.layui-this {
+      font-weight: normal;
+    }
+  }
+
+  &ed dl {
+    min-height: fit-content;
+  }
+}
+
+.layui-form-radio {
+  margin-top: 0;
+}
+
+.layui-form-switch {
+  padding: 0 10px 0 5px;
+
+  em {
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+}
+
+.layui-form-onswitch {
+  padding: 0 5px 0 10px;
+
+  em {
+    margin-left: 0;
+  }
+}
+
+.layui-form-checkbox.layui-form-checked i {
+  border-color: #5FB878;
 }

@@ -1,22 +1,23 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Admin Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-admin
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-admin
 // +----------------------------------------------------------------------
+
+declare(strict_types=1);
 
 namespace app\admin\controller;
 
-use Exception;
 use Ip2Region;
 use think\admin\Controller;
 use think\admin\helper\QueryHelper;
@@ -25,7 +26,7 @@ use think\exception\HttpResponseException;
 
 /**
  * 系统日志管理
- * Class Oplog
+ * @class Oplog
  * @package app\admin\controller
  */
 class Oplog extends Controller
@@ -45,23 +46,23 @@ class Oplog extends Controller
             $columns = SystemOplog::mk()->column('action,username', 'id');
             $this->users = array_unique(array_column($columns, 'username'));
             $this->actions = array_unique(array_column($columns, 'action'));
-        }, function (QueryHelper $query) {
+        }, static function (QueryHelper $query) {
             $query->dateBetween('create_at')->equal('username,action')->like('content,geoip,node');
         });
     }
 
     /**
      * 列表数据处理
-     * @auth true
      * @param array $data
      * @throws \Exception
      */
     protected function _index_page_filter(array &$data)
     {
         $region = new Ip2Region();
-        foreach ($data as &$vo) {
-            $isp = $region->btreeSearch($vo['geoip']);
-            $vo['geoisp'] = str_replace(['内网IP', '0', '|'], '', $isp['region'] ?? '') ?: '-';
+        foreach ($data as &$vo) try {
+            $vo['geoisp'] = $region->simple($vo['geoip']);
+        } catch (\Exception $exception) {
+            $vo['geoip'] = $exception->getMessage();
         }
     }
 
@@ -73,12 +74,13 @@ class Oplog extends Controller
     {
         try {
             SystemOplog::mQuery()->empty();
-            sysoplog('系统运维管理', '成功清理所有日志数据');
+            sysoplog('系统运维管理', '成功清理所有日志');
             $this->success('日志清理成功！');
         } catch (HttpResponseException $exception) {
             throw $exception;
-        } catch (Exception $exception) {
-            $this->error("日志清理失败，{$exception->getMessage()}");
+        } catch (\Exception $exception) {
+            trace_file($exception);
+            $this->error(lang("日志清理失败，%s", [$exception->getMessage()]));
         }
     }
 

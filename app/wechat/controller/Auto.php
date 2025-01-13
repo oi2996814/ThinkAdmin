@@ -1,28 +1,32 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\controller;
 
 use app\wechat\model\WechatAuto;
 use think\admin\Controller;
 use think\admin\extend\CodeExtend;
+use think\admin\helper\QueryHelper;
+use think\admin\service\SystemService;
 
 /**
  * 关注自动回复
- * Class Auto
+ * @class Auto
  * @package app\wechat\controller
  */
 class Auto extends Controller
@@ -47,9 +51,13 @@ class Auto extends Controller
      */
     public function index()
     {
-        $this->title = '关注自动回复';
-        $query = WechatAuto::mQuery()->like('code,type');
-        $query->equal('status')->dateBetween('create_at')->order('time asc')->page();
+        $this->type = $this->get['type'] ?? 'index';
+        WechatAuto::mQuery()->layTable(function () {
+            $this->title = '关注自动回复';
+        }, function (QueryHelper $query) {
+            $query->like('code,type#mtype')->dateBetween('create_at');
+            $query->where(['status' => intval($this->type === 'index')]);
+        });
     }
 
     /**
@@ -93,23 +101,9 @@ class Auto extends Controller
             $data['code'] = CodeExtend::uniqidNumber(18, 'AM');
         }
         if ($this->request->isGet()) {
-            $public = dirname($this->request->basefile(true));
-            $this->defaultImage = "{$public}/static/theme/img/image.png";
+            $this->defaultImage = SystemService::uri('/static/theme/img/image.png', '__FULL__');
         } else {
             $data['content'] = strip_tags($data['content'] ?? '', '<a>');
-        }
-    }
-
-    /**
-     * 表单结果处理
-     * @param boolean $result
-     */
-    protected function _form_result(bool $result)
-    {
-        if ($result !== false) {
-            $this->success('恭喜, 关键字保存成功！', 'javascript:history.back()');
-        } else {
-            $this->error('关键字保存失败, 请稍候再试！');
         }
     }
 

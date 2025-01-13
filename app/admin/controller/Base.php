@@ -1,18 +1,20 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Admin Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-admin
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-admin
 // +----------------------------------------------------------------------
+
+declare(strict_types=1);
 
 namespace app\admin\controller;
 
@@ -22,7 +24,7 @@ use think\admin\model\SystemBase;
 
 /**
  * 数据字典管理
- * Class Base
+ * @class Base
  * @package app\admin\controller
  */
 class Base extends Controller
@@ -39,9 +41,9 @@ class Base extends Controller
     {
         SystemBase::mQuery()->layTable(function () {
             $this->title = '数据字典管理';
-            $this->types = SystemBase::mk()->types();
-            $this->type = input('get.type', $this->types[0] ?? '-');
-        }, function (QueryHelper $query) {
+            $this->types = SystemBase::types();
+            $this->type = $this->get['type'] ?? ($this->types[0] ?? '-');
+        }, static function (QueryHelper $query) {
             $query->where(['deleted' => 0])->equal('type');
             $query->like('code,name,status')->dateBetween('create_at');
         });
@@ -68,21 +70,22 @@ class Base extends Controller
     /**
      * 表单数据处理
      * @param array $data
+     * @throws \think\db\exception\DbException
      */
     protected function _form_filter(array &$data)
     {
         if ($this->request->isGet()) {
-            $this->types = SystemBase::mk()->types();
-            $this->types[] = '--- 新增类型 ---';
-            $this->type = input('get.type') ?: ($this->types[0] ?? '-');
+            $this->types = SystemBase::types();
+            $this->types[] = '--- ' . lang('新增类型') . ' ---';
+            $this->type = $this->get['type'] ?? ($this->types[0] ?? '-');
         } else {
             $map = [];
             $map[] = ['deleted', '=', 0];
             $map[] = ['code', '=', $data['code']];
             $map[] = ['type', '=', $data['type']];
-            if (isset($data['id'])) $map[] = ['id', '<>', $data['id']];
+            $map[] = ['id', '<>', $data['id'] ?? 0];
             if (SystemBase::mk()->where($map)->count() > 0) {
-                $this->error("同类型的数据编码已经存在！");
+                $this->error("数据编码已经存在！");
             }
         }
     }

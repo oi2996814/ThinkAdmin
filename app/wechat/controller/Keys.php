@@ -1,29 +1,33 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\controller;
 
 use app\wechat\model\WechatKeys;
 use app\wechat\service\WechatService;
 use think\admin\Controller;
+use think\admin\helper\QueryHelper;
+use think\admin\service\SystemService;
 use think\exception\HttpResponseException;
 
 /**
  * 回复规则管理
- * Class Keys
+ * @class Keys
  * @package app\wechat\controller
  */
 class Keys extends Controller
@@ -58,9 +62,14 @@ class Keys extends Controller
             $this->error("生成二维码失败，请稍候再试！<br> {$exception->getMessage()}");
         }
         // 数据列表分页处理
-        $this->title = '回复规则管理';
-        $query = WechatKeys::mQuery()->whereNotIn('keys', ['subscribe', 'default']);
-        $query->equal('status')->like('keys,type')->dateBetween('create_at')->order('sort desc,id desc')->page();
+        $this->type = $this->get['type'] ?? 'index';
+        WechatKeys::mQuery()->layTable(function () {
+            $this->title = '回复规则管理';
+        }, function (QueryHelper $query) {
+            $query->whereNotIn('keys', ['subscribe', 'default']);
+            $query->like('keys,type#mtype')->dateBetween('create_at');
+            $query->where(['status' => intval($this->type === 'index')]);
+        });
     }
 
     /**
@@ -81,7 +90,6 @@ class Keys extends Controller
      */
     public function add()
     {
-        $this->_applyFormToken();
         $this->title = '添加回复规则';
         WechatKeys::mForm('form');
     }
@@ -92,7 +100,6 @@ class Keys extends Controller
      */
     public function edit()
     {
-        $this->_applyFormToken();
         $this->title = '编辑回复规则';
         WechatKeys::mForm('form');
     }
@@ -103,7 +110,6 @@ class Keys extends Controller
      */
     public function state()
     {
-        $this->_applyFormToken();
         WechatKeys::mSave($this->_vali([
             'status.in:0,1'  => '状态值范围异常！',
             'status.require' => '状态值不能为空！',
@@ -116,18 +122,15 @@ class Keys extends Controller
      */
     public function remove()
     {
-        $this->_applyFormToken();
         WechatKeys::mDelete();
     }
 
     /**
      * 配置订阅回复
      * @auth true
-     * @menu true
      */
     public function subscribe()
     {
-        $this->_applyFormToken();
         $this->title = '编辑订阅回复规则';
         WechatKeys::mForm('form', 'keys', [], ['keys' => 'subscribe']);
     }
@@ -135,11 +138,9 @@ class Keys extends Controller
     /**
      * 配置默认回复
      * @auth true
-     * @menu true
      */
     public function defaults()
     {
-        $this->_applyFormToken();
         $this->title = '编辑默认回复规则';
         WechatKeys::mForm('form', 'keys', [], ['keys' => 'default']);
     }
@@ -147,33 +148,16 @@ class Keys extends Controller
     /**
      * 添加数据处理
      * @param array $data
+     * @throws \think\db\exception\DbException
      */
     protected function _form_filter(array &$data)
     {
         if ($this->request->isPost()) {
             $map = [['keys', '=', $data['keys']], ['id', '<>', $data['id'] ?? 0]];
-            if (WechatKeys::mk()->where($map)->count() > 0) {
-                $this->error('该关键字已经存在！');
-            }
+            if (WechatKeys::mk()->where($map)->count() > 0) $this->error('关键字已经存在！');
             $data['content'] = strip_tags($data['content'] ?? '', '<a>');
         } elseif ($this->request->isGet()) {
-            $public = dirname($this->request->basefile(true));
-            $this->defaultImage = "{$public}/static/theme/img/image.png";
-        }
-    }
-
-    /**
-     * 表单结果处理
-     * @param boolean $result
-     */
-    protected function _form_result(bool $result)
-    {
-        if ($result !== false) {
-            $iskeys = in_array(input('keys'), ['subscribe', 'default']);
-            $location = $iskeys ? 'javascript:$.form.reload()' : 'javascript:history.back()';
-            $this->success('恭喜, 关键字保存成功！', $location);
-        } else {
-            $this->error('关键字保存失败, 请稍候再试！');
+            $this->defaultImage = SystemService::uri('/static/theme/img/image.png', '__FULL__');
         }
     }
 }

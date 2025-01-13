@@ -1,18 +1,20 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\controller\api;
 
@@ -22,7 +24,7 @@ use think\Response;
 
 /**
  * 前端JS获取控制器
- * Class Js
+ * @class Js
  * @package app\wechat\controller\api
  */
 class Js extends Controller
@@ -42,20 +44,17 @@ class Js extends Controller
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function index(): Response
     {
         $mode = $this->request->get('mode', 1);
         $source = $this->request->server('http_referer') ?: $this->request->url(true);
-        $userinfo = WechatService::instance()->getWebOauthInfo($source, $mode, false);
+        $userinfo = WechatService::getWebOauthInfo($source, $mode, false);
         if (empty($userinfo['openid'])) {
             $content = 'alert("Wechat webOauth failed.")';
         } else {
             $this->openid = $userinfo['openid'];
-            $this->params = json_encode(WechatService::instance()->getWebJssdkSign($source));
+            $this->params = json_encode(WechatService::getWebJssdkSign($source));
             $this->fansinfo = json_encode($userinfo['fansinfo'] ?? [], JSON_UNESCAPED_UNICODE);
             // 生成数据授权令牌
             $this->token = uniqid('oauth') . rand(10000, 99999);
@@ -71,14 +70,11 @@ class Js extends Controller
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      * @throws \think\admin\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function sdk()
     {
         $data = $this->_vali(['url.require' => '签名地址不能为空！']);
-        $this->success('获取签名参数', WechatService::instance()->getWebJssdkSign($data['url']));
+        $this->success('获取签名参数', WechatService::getWebJssdkSign($data['url']));
     }
 
     /**

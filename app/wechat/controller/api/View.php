@@ -1,18 +1,20 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\controller\api;
 
@@ -22,7 +24,7 @@ use think\admin\Controller;
 
 /**
  * 微信图文显示
- * Class View
+ * @class View
  * @package app\wechat\controller\api
  */
 class View extends Controller
@@ -38,25 +40,21 @@ class View extends Controller
     public function news($id = 0)
     {
         $this->id = $id ?: input('id', 0);
-        $this->news = MediaService::instance()->news($this->id);
+        $this->news = MediaService::news($this->id);
         $this->fetch();
     }
 
     /**
      * 文章内容展示
      * @param string|integer $id 文章ID编号
-     * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function item($id = 0)
     {
         $map = ['id' => $id ?: input('id', 0)];
-        WechatNewsArticle::mk()->where($map)->update([
-            'read_num' => $this->app->db->raw('read_num+1'),
-        ]);
-        $this->info = WechatNewsArticle::mk()->where($map)->find();
-        $this->fetch();
+        $modal = WechatNewsArticle::mk()->where($map)->findOrEmpty();
+        $modal->isExists() && $modal->newQuery()->where($map)->setInc('read_num');
+        $this->fetch('item', ['info' => $modal->toArray()]);
     }
 
     /**
@@ -64,8 +62,8 @@ class View extends Controller
      */
     public function text()
     {
-        $this->content = strip_tags(input('content', ''), '<a><img>');
-        $this->fetch();
+        $text = strip_tags(input('content', ''), '<a><img>');
+        $this->fetch('text', ['content' => $text]);
     }
 
     /**
@@ -73,8 +71,8 @@ class View extends Controller
      */
     public function image()
     {
-        $this->content = strip_tags(input('content', ''), '<a><img>');
-        $this->fetch();
+        $text = strip_tags(input('content', ''), '<a><img>');
+        $this->fetch('image', ['content' => $text]);
     }
 
     /**

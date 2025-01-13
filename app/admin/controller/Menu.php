@@ -1,18 +1,20 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Admin Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-admin
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-admin
 // +----------------------------------------------------------------------
+
+declare(strict_types=1);
 
 namespace app\admin\controller;
 
@@ -25,7 +27,7 @@ use think\admin\service\NodeService;
 
 /**
  * 系统菜单管理
- * Class Menu
+ * @class Menu
  * @package app\admin\controller
  */
 class Menu extends Controller
@@ -41,8 +43,8 @@ class Menu extends Controller
     public function index()
     {
         $this->title = '系统菜单管理';
-        $this->type = input('get.type', 'index');
-        SystemMenu::mQuery()->order('sort desc,id asc')->page(false, true);
+        $this->type = $this->get['type'] ?? 'index';
+        SystemMenu::mQuery()->layTable();
     }
 
     /**
@@ -58,7 +60,7 @@ class Menu extends Controller
                 if (!empty($p2['sub'])) foreach ($p2['sub'] as $k3 => $p3) {
                     if ($p3['status'] > 0) unset($p2['sub'][$k3]);
                 }
-                if (empty($p2['sub']) && ($p2['url'] === '#' or $p1['status'] > 0)) unset($p1['sub'][$k2]);
+                if (empty($p2['sub']) && ($p2['url'] === '#' or $p2['status'] > 0)) unset($p1['sub'][$k2]);
             }
             if (empty($p1['sub']) && ($p1['url'] === '#' or $p1['status'] > 0)) unset($data[$k1]);
         }
@@ -68,7 +70,6 @@ class Menu extends Controller
             if ($vo['url'] !== '#' && !preg_match('/^(https?:)?(\/\/|\\\\)/i', $vo['url'])) {
                 $vo['url'] = trim(url($vo['url']) . ($vo['params'] ? "?{$vo['params']}" : ''), '\\/');
             }
-            $vo['ids'] = join(',', DataExtend::getArrSubIds($data, $vo['id']));
         }
     }
 
@@ -95,25 +96,23 @@ class Menu extends Controller
     /**
      * 表单数据处理
      * @param array $vo
-     * @throws \ReflectionException
      */
     protected function _form_filter(array &$vo)
     {
         if ($this->request->isGet()) {
+            $debug = $this->app->isDebug();
             /* 清理权限节点 */
-            if ($this->app->isDebug()) {
-                AdminService::instance()->clearCache();
-            }
-            /* 选择自己的上级菜单 */
-            $vo['pid'] = $vo['pid'] ?? input('pid', '0');
+            $debug && AdminService::clear();
             /* 读取系统功能节点 */
             $this->auths = [];
-            $this->nodes = MenuService::instance()->getList();
-            foreach (NodeService::instance()->getMethods() as $node => $item) {
+            $this->nodes = MenuService::getList($debug);
+            foreach (NodeService::getMethods($debug) as $node => $item) {
                 if ($item['isauth'] && substr_count($node, '/') >= 2) {
                     $this->auths[] = ['node' => $node, 'title' => $item['title']];
                 }
             }
+            /* 选择自己上级菜单 */
+            $vo['pid'] = $vo['pid'] ?? input('pid', '0');
             /* 列出可选上级菜单 */
             $menus = SystemMenu::mk()->order('sort desc,id asc')->column('id,pid,icon,url,node,title,params', 'id');
             $this->menus = DataExtend::arr2table(array_merge($menus, [['id' => '0', 'pid' => '-1', 'url' => '#', 'title' => '顶部菜单']]));
@@ -131,7 +130,6 @@ class Menu extends Controller
      */
     public function state()
     {
-        $this->_applyFormToken();
         SystemMenu::mSave($this->_vali([
             'status.in:0,1'  => '状态值范围异常！',
             'status.require' => '状态值不能为空！',
@@ -144,7 +142,6 @@ class Menu extends Controller
      */
     public function remove()
     {
-        $this->_applyFormToken();
         SystemMenu::mDelete();
     }
 }

@@ -1,18 +1,20 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | ThinkAdmin
+// | Wechat Plugin for ThinkAdmin
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2021 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
+// | 版权所有 2014~2024 Anyon <zoujingli@qq.com>
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
-// | 免费声明 ( https://thinkadmin.top/disclaimer )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
 // +----------------------------------------------------------------------
-// | gitee 代码仓库：https://gitee.com/zoujingli/ThinkAdmin
-// | github 代码仓库：https://github.com/zoujingli/ThinkAdmin
+// | gitee 代码仓库：https://gitee.com/zoujingli/think-plugs-wechat
+// | github 代码仓库：https://github.com/zoujingli/think-plugs-wechat
 // +----------------------------------------------------------------------
+
+declare (strict_types=1);
 
 namespace app\wechat\controller;
 
@@ -20,11 +22,12 @@ use app\wechat\model\WechatNews;
 use app\wechat\model\WechatNewsArticle;
 use app\wechat\service\MediaService;
 use think\admin\Controller;
+use think\admin\helper\QueryHelper;
 use think\admin\service\AdminService;
 
 /**
  * 微信图文管理
- * Class News
+ * @class News
  * @package app\wechat\controller
  */
 class News extends Controller
@@ -33,14 +36,13 @@ class News extends Controller
      * 微信图文管理
      * @auth true
      * @menu true
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function index()
     {
         $this->title = '微信图文列表';
-        WechatNews::mQuery()->where(['is_deleted' => 0])->order('id desc')->page();
+        WechatNews::mQuery(null, static function (QueryHelper $query) {
+            $query->where(['is_deleted' => 0])->order('id desc')->page();
+        });
     }
 
     /**
@@ -53,16 +55,13 @@ class News extends Controller
     protected function _page_filter(array &$data)
     {
         foreach ($data as &$vo) {
-            $vo = MediaService::instance()->news($vo['id']);
+            $vo = MediaService::news($vo['id']);
         }
     }
 
     /**
      * 图文选择器
      * @auth true
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
      */
     public function select()
     {
@@ -76,14 +75,14 @@ class News extends Controller
     public function add()
     {
         if ($this->request->isGet()) {
-            $this->title = '新建图文';
+            $this->title = '新建微信图文';
             $this->fetch('form');
         } else {
             $update = [
-                'create_by'  => AdminService::instance()->getUserId(),
+                'create_by'  => AdminService::getUserId(),
                 'article_id' => $this->_buildArticle($this->request->post('data', [])),
             ];
-            if (WechatNews::mk()->insert($update) !== false) {
+            if (WechatNews::mk()->save($update) !== false) {
                 $this->success('图文添加成功！', 'javascript:history.back()');
             } else {
                 $this->error('图文添加失败，请稍候再试！');
@@ -104,16 +103,16 @@ class News extends Controller
         if (empty($this->id)) $this->error('参数错误，请稍候再试！');
         if ($this->request->isGet()) {
             if ($this->request->get('output') === 'json') {
-                $this->success('获取数据成功！', MediaService::instance()->news($this->id));
+                $this->success('获取数据成功！', MediaService::news($this->id));
             } else {
-                $this->title = '编辑图文';
+                $this->title = '编辑微信图文';
                 $this->fetch('form');
             }
         } else {
             $ids = $this->_buildArticle($this->request->post('data', []));
             [$map, $data] = [['id' => $this->id], ['article_id' => $ids]];
             if (WechatNews::mk()->where($map)->update($data) !== false) {
-                $this->success('更新成功！', 'javascript:history.back()');
+                $this->success('图文更新成功！', 'javascript:history.back()');
             } else {
                 $this->error('更新失败，请稍候再试！');
             }
@@ -139,7 +138,7 @@ class News extends Controller
         $ids = [];
         foreach ($data as $vo) {
             if (empty($vo['digest'])) {
-                $vo['digest'] = mb_substr(strip_tags(str_replace(["\s", '　'], '', $vo['content'])), 0, 120);
+                $vo['digest'] = mb_substr(strip_tags(preg_replace('#(\s+|　)#', '', $vo['content'])), 0, 120);
             }
             $vo['create_at'] = date('Y-m-d H:i:s');
             if (empty($vo['id'])) {
@@ -148,7 +147,7 @@ class News extends Controller
                 $id = intval($vo['id']);
                 $result = WechatNewsArticle::mk()->where('id', $id)->update($vo);
             }
-            if ($result !== false) array_push($ids, $id);
+            if ($result) $ids[] = $id;
         }
         return join(',', $ids);
     }
